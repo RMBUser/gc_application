@@ -6,11 +6,11 @@ import java.util.Map;
 public class ObjNullUtil {
 	
 	public static boolean emptyOrNull(String source) {
-		return source == null || source.isEmpty();
+		return source == null || source.trim().isEmpty();
 	}
 	
 	public static boolean noEmptyOrNull(String source) {
-		return source != null && !source.isEmpty();
+		return source != null && !source.trim().isEmpty();
 	}
 	
 	public static boolean emptyOrNull(Collection<?> source) {
