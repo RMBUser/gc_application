@@ -9,8 +9,15 @@ import com.rfu.gc.platform.entity.Category;
 
 public interface CategoryRepository extends JpaRepository<Category, Integer> {
 	
-	public List<Category> findByCategoryType(String categoryType);
+	 List<Category> findByCategoryType(String categoryType);
+	
 	
 	@Query(value = "SELECT t FROM Category t WHERE t.categoryType LIKE %?1%")
 	public List<Category> findByTypeLike(String categoryType);
+	
+	
+	
+	
+	
+	
 }

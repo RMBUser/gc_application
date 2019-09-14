@@ -10,17 +10,23 @@ import javax.persistence.Table;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
+/**
+ * @author Raymond
+ *
+ */
+
 @Entity
-@Table(name = "t_gc_db_category")
-public class Category {
-	
+@Table(name = "t_gc_db_garbage_info") //映射到个表，对应关系
+public class Garbage {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Integer categoryId;
+    private Integer garbageId;
 	
-	private String categoryType;
+	private String garbageName;
 	
-	private Integer origin;
+	private String desc;
+	
+	private String origin;
 	
 	private String originAdr;
 	
@@ -29,27 +35,35 @@ public class Category {
 	
 	private Integer isEnable;
 
-	public Integer getCategoryId() {
-		return categoryId;
+	public Integer getGarbageId() {
+		return garbageId;
 	}
 
-	public void setCategoryId(Integer categoryId) {
-		this.categoryId = categoryId;
+	public void setGarbageId(Integer garbageId) {
+		this.garbageId = garbageId;
 	}
 
-	public String getCategoryType() {
-		return categoryType;
+	public String getGarbageName() {
+		return garbageName;
 	}
 
-	public void setCategoryType(String categoryType) {
-		this.categoryType = categoryType;
+	public void setGarbageName(String garbageName) {
+		this.garbageName = garbageName;
 	}
 
-	public Integer getOrigin() {
+	public String getDesc() {
+		return desc;
+	}
+
+	public void setDes(String desc) {
+		this.desc = desc;
+	}
+
+	public String getOrigin() {
 		return origin;
 	}
 
-	public void setOrigin(Integer origin) {
+	public void setOrigin(String origin) {
 		this.origin = origin;
 	}
 
@@ -77,4 +91,7 @@ public class Category {
 		this.isEnable = isEnable;
 	}
 	
+	
+	
+
 }
