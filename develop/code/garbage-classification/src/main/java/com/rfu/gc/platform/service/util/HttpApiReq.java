@@ -9,6 +9,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
 
 import com.google.gson.Gson;
@@ -16,8 +18,12 @@ import com.google.gson.GsonBuilder;
 import com.rfu.gc.platform.pub.util.ObjNullUtil;
 
 @Service
+@PropertySource("classpath:apis.properties")
 public class HttpApiReq implements ApiReq {
-
+	
+	@Value("${apis.re-request.times}")
+	private int reRequestTimes;
+	
 	/**
 	 * Entity is used to send a <strong>POST</strong> request as requestBody json
 	 * and using utf-8 by default
@@ -25,9 +31,10 @@ public class HttpApiReq implements ApiReq {
 	 * @param urlStr:url   string
 	 * @param entity:which will be casted to a json string and used as request body
 	 * @return response body as a string
+	 * @throws IOException 
 	 */
 	@Override
-	public <E> String sendReq(String urlStr, E entity) throws Exception {
+	public <E> String sendReq(String urlStr, E entity) throws IOException {
 		return sendReq(urlStr, entity, null);
 	}
 
@@ -39,9 +46,10 @@ public class HttpApiReq implements ApiReq {
 	 * @param charset:     charset.If this parameter is null or empty,utf-8 will be
 	 *                     used as default
 	 * @return response body as a string
+	 * @throws IOException 
 	 */
 	@Override
-	public <E> String sendReq(String urlStr, E entity, String charset) throws Exception {
+	public <E> String sendReq(String urlStr, E entity, String charset) throws IOException {
 		Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
 		String requestBody = gson.toJson(entity, entity.getClass());
 		return sendReq(urlStr, requestBody, null);
@@ -53,9 +61,10 @@ public class HttpApiReq implements ApiReq {
 	 * @param urlStr:url   string
 	 * @param requestBody: will be casted to a json string and used as request body
 	 * @return response body as a string
+	 * @throws IOException 
 	 */
 	@Override
-	public String sendReq(String urlStr, String requestBody) throws Exception {
+	public String sendReq(String urlStr, String requestBody) throws IOException {
 		return sendReq(urlStr, requestBody, null);
 	}
 
@@ -72,9 +81,10 @@ public class HttpApiReq implements ApiReq {
 	 * @param method:    request method.If this parameter is null or
 	 *                   empty,<Strong>Get</Strong> will be used as default
 	 * @return response body as a string
+	 * @throws IOException 
 	 */
 	@Override
-	public String sendReq(String urlStr, Map<String, ?> args, String method) throws Exception {
+	public String sendReq(String urlStr, Map<String, ?> args, String method) throws IOException {
 		return sendReq(urlStr, args, method, null);
 	}
 
@@ -86,13 +96,25 @@ public class HttpApiReq implements ApiReq {
 	 * @param charset:     charset.If this parameter is null or empty,utf-8 will be
 	 *                     used as default
 	 * @return response body as a string
+	 * @throws IOException 
 	 */
 	@Override
-	public String sendReq(String urlStr, String requestBody, String charset) throws Exception {
+	public String sendReq(String urlStr, String requestBody, String charset) throws IOException {
 		if (ObjNullUtil.emptyOrNull(urlStr))
-			throw new Exception("url string can not be empty");
+			throw new IllegalArgumentException("url string can not be empty");
 		charset = ObjNullUtil.emptyOrNull(charset) ? UTF8 : charset;
-		return call(urlStr, requestBody, POST, charset);
+		String result = null;
+		boolean reqSuccess = false;
+		int reqTimes = 1;
+		while (!reqSuccess) {
+			try {
+				result = callhttp(urlStr, requestBody, POST, charset);
+				reqSuccess = true;
+			} catch (IOException e) {
+				if((++reqTimes)>this.reRequestTimes) throw e;
+			}
+		}
+		return result;
 	}
 
 	/**
@@ -110,11 +132,12 @@ public class HttpApiReq implements ApiReq {
 	 * @param charset:   charset.If this parameter is null or empty,utf-8 will be
 	 *                   used as default
 	 * @return response body as a string
+	 * @throws IOException 
 	 */
 	@Override
-	public String sendReq(String urlStr, Map<String, ?> argsMap, String method, String charset) throws Exception {
+	public String sendReq(String urlStr, Map<String, ?> argsMap, String method, String charset) throws IOException {
 		if (ObjNullUtil.emptyOrNull(urlStr))
-			throw new Exception("url string can not be empty");
+			throw new IllegalArgumentException("url string can not be empty");
 		method = ObjNullUtil.emptyOrNull(method) ? GET : method;
 		charset = ObjNullUtil.emptyOrNull(charset) ? UTF8 : charset;
 		String args = null;
@@ -124,7 +147,18 @@ public class HttpApiReq implements ApiReq {
 			else if (POST.equals(method))
 				args = map2Json(argsMap);
 		}
-		return call(urlStr, args, method, charset);
+		String result = null;
+		boolean reqSuccess = false;
+		int reqTimes = 1;
+		while (!reqSuccess) {
+			try {
+				result = callhttp(urlStr, args, method, charset);
+				reqSuccess = true;
+			} catch (IOException e) {
+				if((++reqTimes)>this.reRequestTimes) throw e;
+			}
+		}
+		return result;
 	}
 
 	private String map2Json(Map<String, ?> argsMap) {
@@ -132,7 +166,7 @@ public class HttpApiReq implements ApiReq {
 		return gson.toJson(argsMap, Map.class);
 	}
 
-	private String call(String urlStr, String args, String method, String charset) {
+	private String callhttp(String urlStr, String args, String method, String charset) throws IOException {
 		URL url = null;
 		HttpURLConnection conn = null;
 		StringBuilder sb = new StringBuilder();
@@ -161,7 +195,7 @@ public class HttpApiReq implements ApiReq {
 			while ((temp = br.readLine()) != null)
 				sb.append(temp);
 		} catch (IOException e) {
-			e.printStackTrace();
+			throw e;
 		} finally {
 			if (conn != null)
 				conn.disconnect();

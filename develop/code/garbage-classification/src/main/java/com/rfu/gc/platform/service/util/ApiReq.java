@@ -1,5 +1,6 @@
 package com.rfu.gc.platform.service.util;
 
+import java.io.IOException;
 import java.util.Map;
 
 import com.rfu.gc.platform.pub.util.ObjNullUtil;
@@ -19,17 +20,71 @@ public interface ApiReq {
 
 	public static final String GBK = "gbk";
 
-	public <E extends Object> String sendReq(String urlStr, E entity) throws Exception;
+	/**
+	 * Send request with entity.
+	 * 
+	 * @param urlStr
+	 * @param entity
+	 * @return response body as a string
+	 * @throws IOException 
+	 */
+	public <E extends Object> String sendReq(String urlStr, E entity) throws IOException;
 
-	public <E extends Object> String sendReq(String urlStr, E entity, String charset) throws Exception;
+	/**
+	 * Use specified character set to send request with entity .
+	 * 
+	 * @param urlStr
+	 * @param entity
+	 * @param charset
+	 * @return response body as a string
+	 * @throws IOException 
+	 */
+	public <E extends Object> String sendReq(String urlStr, E entity, String charset) throws IOException;
 
-	public String sendReq(String urlStr, String requstBody) throws Exception;
+	/**
+	 * Send request with a string request body
+	 * 
+	 * @param urlStr
+	 * @param requestBody
+	 * @return response body as a string
+	 * @throws IOException 
+	 */
+	public String sendReq(String urlStr, String requstBody) throws IOException;
 
-	public String sendReq(String urlStr, String requestBody, String charset) throws Exception;
+	/**
+	 * Use specified character set to send request with a string request body
+	 * 
+	 * @param urlStr
+	 * @param requestBody
+	 * @param charset
+	 * @return response body as a string
+	 * @throws IOException 
+	 */
+	public String sendReq(String urlStr, String requestBody, String charset) throws IOException;
 
-	public String sendReq(String urlStr, Map<String, ?> argsMap, String method) throws Exception;
+	/**
+	 * Use specified request method to send request with a map argument
+	 * 
+	 * @param urlStr
+	 * @param argsMap
+	 * @param method
+	 * @return response body as a string
+	 * @throws IOException 
+	 */
+	public String sendReq(String urlStr, Map<String, ?> argsMap, String method) throws IOException;
 
-	public String sendReq(String urlStr, Map<String, ?> argsMap, String method, String charset) throws Exception;
+	/**
+	 * Use specified request method and character set to send request with a map
+	 * argument
+	 * 
+	 * @param urlStr
+	 * @param argsMap
+	 * @param method
+	 * @param charset
+	 * @return response body as a string
+	 * @throws IOException 
+	 */
+	public String sendReq(String urlStr, Map<String, ?> argsMap, String method, String charset) throws IOException;
 
 	/**
 	 * Splicing url and elements in map together
@@ -37,11 +92,10 @@ public interface ApiReq {
 	 * @param urlStr
 	 * @param argsMap
 	 * @return
-	 * @throws Exception
 	 */
-	public static String concatGetUrl(String urlStr, Map<String, ?> argsMap) throws Exception {
+	public static String concatGetUrl(String urlStr, Map<String, ?> argsMap) {
 		if (ObjNullUtil.emptyOrNull(urlStr) || ObjNullUtil.emptyOrNull(argsMap))
-			throw new Exception("url or args can not be empty");
+			throw new IllegalArgumentException("url or args can not be empty");
 		StringBuilder sb = new StringBuilder(urlStr + "?");
 		argsMap.forEach((k, v) -> sb.append(k).append("=").append(v).append("&"));
 		return sb.deleteCharAt(sb.length() - 1).toString();

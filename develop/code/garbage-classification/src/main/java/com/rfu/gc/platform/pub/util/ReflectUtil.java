@@ -284,7 +284,7 @@ public class ReflectUtil {
 	private static <T> Object copyValue2T(T t, String fieldName, Object value) {
 		Class<?> tClazz = t.getClass();
 		Object obj = null;
-		if (value != null) {
+		if (value != null && ObjNullUtil.noEmptyOrNull(fieldName)) {
 			try {
 				Method setter = getSetter(tClazz, fieldName);
 				obj = setter.invoke(t, value);

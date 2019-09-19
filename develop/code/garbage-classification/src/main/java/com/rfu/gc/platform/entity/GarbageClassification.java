@@ -6,57 +6,58 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
-/**
- * @author Raymond
- *
- */
-
 @Entity
-@Table(name = "t_gc_db_garbage_info") //映射到个表，对应关系
-public class Garbage {
+@Table(name = "t_gc_bu_garbage_classification")
+public class GarbageClassification {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer garbageId;
-	
-	private String garbageName;
-	
-	private String garbageDesc;
-	
+	private Integer gcId;
+
+	@JoinColumn(name = "GARBAGE_ID", referencedColumnName = "garbageId")
+	@ManyToOne
+	private Garbage garbage;
+
+	@JoinColumn(name = "CATEGORY_ID", referencedColumnName = "categoryId")
+	@ManyToOne
+	private Category category;
+
 	private Short origin;
-	
+
 	private String originAdr;
-	
+
 	@DateTimeFormat(pattern = "yyyy-MM-dd")
 	private Date createdTime;
-	
+
 	private Short isEnable;
 
-	public Integer getGarbageId() {
-		return garbageId;
+	public Integer getGcId() {
+		return gcId;
 	}
 
-	public void setGarbageId(Integer garbageId) {
-		this.garbageId = garbageId;
+	public void setGcId(Integer gcId) {
+		this.gcId = gcId;
 	}
 
-	public String getGarbageName() {
-		return garbageName;
+	public Garbage getGarbage() {
+		return garbage;
 	}
 
-	public void setGarbageName(String garbageName) {
-		this.garbageName = garbageName;
+	public void setGarbage(Garbage garbage) {
+		this.garbage = garbage;
 	}
 
-	public String getGarbageDesc() {
-		return garbageDesc;
+	public Category getCategory() {
+		return category;
 	}
 
-	public void setGarbageDesc(String garbageDesc) {
-		this.garbageDesc = garbageDesc;
+	public void setCategory(Category category) {
+		this.category = category;
 	}
 
 	public Short getOrigin() {
@@ -93,7 +94,7 @@ public class Garbage {
 
 	@Override
 	public String toString() {
-		return "Garbage [garbageId=" + garbageId + ", garbageName=" + garbageName + ", garbageDesc=" + garbageDesc + ", origin="
+		return "GarbageClassification [gcId=" + gcId + ", garbage=" + garbage + ", category=" + category + ", origin="
 				+ origin + ", originAdr=" + originAdr + ", createdTime=" + createdTime + ", isEnable=" + isEnable
 				+ ", toString()=" + super.toString() + "]";
 	}

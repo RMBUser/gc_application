@@ -4,20 +4,18 @@ import com.rfu.gc.platform.pub.extend.FieldMapping;
 
 public class LajiInfo {
 	
-	@FieldMapping(mappingName = {"categoryType"})
+	@FieldMapping(mappingName = {"garbageName"})
 	private String name;
 	
-//	@FieldMapping(mappingName = "categoryId")
+	@FieldMapping(mappingName = "")
 	private Integer type;
 	
 	private Integer aipre;
-	
 	
 	private String explain;
 	
 	private String contain;
 	
-	@FieldMapping(mappingName = "originAdr")
 	private String tip;
 
 	public String getName() {
@@ -67,5 +65,10 @@ public class LajiInfo {
 	public void setTip(String tip) {
 		this.tip = tip;
 	}
-	
+
+	@Override
+	public String toString() {
+		return "LajiInfo [name=" + name + ", type=" + type + ", aipre=" + aipre + ", explain=" + explain + ", contain="
+				+ contain + ", tip=" + tip + ", toString()=" + super.toString() + "]";
+	}
 }

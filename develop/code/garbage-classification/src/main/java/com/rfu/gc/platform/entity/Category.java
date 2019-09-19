@@ -20,14 +20,22 @@ public class Category {
 	
 	private String categoryType;
 	
-	private Integer origin;
+	private Short origin;
 	
 	private String originAdr;
 	
 	@DateTimeFormat(pattern = "yyyy-MM-dd")
 	private Date createdTime;
 	
-	private Integer isEnable;
+	private Short isEnable;
+	
+	private String desc;
+	
+	private String categoryExplain;
+	
+	private String contain;
+	
+	private String tip;
 
 	public Integer getCategoryId() {
 		return categoryId;
@@ -45,11 +53,11 @@ public class Category {
 		this.categoryType = categoryType;
 	}
 
-	public Integer getOrigin() {
+	public Short getOrigin() {
 		return origin;
 	}
 
-	public void setOrigin(Integer origin) {
+	public void setOrigin(Short origin) {
 		this.origin = origin;
 	}
 
@@ -69,12 +77,51 @@ public class Category {
 		this.createdTime = createdTime;
 	}
 
-	public Integer getIsEnable() {
+	public Short getIsEnable() {
 		return isEnable;
 	}
 
-	public void setIsEnable(Integer isEnable) {
+	public void setIsEnable(Short isEnable) {
 		this.isEnable = isEnable;
 	}
-	
+
+	public String getDesc() {
+		return desc;
+	}
+
+	public void setDesc(String desc) {
+		this.desc = desc;
+	}
+
+	public String getCategoryExplain() {
+		return categoryExplain;
+	}
+
+	public void setCategoryExplain(String categoryExplain) {
+		this.categoryExplain = categoryExplain;
+	}
+
+	public String getContain() {
+		return contain;
+	}
+
+	public void setContain(String contain) {
+		this.contain = contain;
+	}
+
+	public String getTip() {
+		return tip;
+	}
+
+	public void setTip(String tip) {
+		this.tip = tip;
+	}
+
+	@Override
+	public String toString() {
+		return "Category [categoryId=" + categoryId + ", categoryType=" + categoryType + ", origin=" + origin
+				+ ", originAdr=" + originAdr + ", createdTime=" + createdTime + ", isEnable=" + isEnable + ", desc="
+				+ desc + ", categoryExplain=" + categoryExplain + ", contain=" + contain + ", tip=" + tip
+				+ ", toString()=" + super.toString() + "]";
+	}
 }
