@@ -50,22 +50,20 @@ public class RemoteGCServive {
 			responseGCModel.setData(Arrays.asList(new TypeOfGarbage[0]));
 			try {
 				RemoteCallResultWapper<List<TypeOfGarbage>> callResult = lr3800Service.getTypeOfGarbage(garbageName);
-				if (callResult != null) {
-					if (callResult.getTarget() != null) {
-						responseGCModel.setData(callResult.getTarget());
-						if (!callResult.getTarget().isEmpty()) {
-							responseGCModel.setRetCode(ResponseGCModel.SUCCESS);
-							responseGCModel.setRetMsg(ResponseGCModel.SUCCESS_MSG);
-							if (ObjNullUtil.noEmptyOrNull(callResult.getGarbageClassificationList()))
-								asyncUpdateLocaldb(callResult.getGarbageClassificationList());
-						} else {
-							responseGCModel.setRetCode(ResponseGCModel.DATA_NOT_FOUND_CODE);
-							responseGCModel.setRetMsg(ResponseGCModel.DATA_NOT_FOUND_MSG);
-						}
+				if (callResult != null && callResult.getTarget() != null) {
+					responseGCModel.setData(callResult.getTarget());
+					if (!callResult.getTarget().isEmpty()) {
+						responseGCModel.setRetCode(ResponseGCModel.SUCCESS);
+						responseGCModel.setRetMsg(ResponseGCModel.SUCCESS_MSG);
+						if (ObjNullUtil.noEmptyOrNull(callResult.getGarbageClassificationList()))
+							asyncUpdateLocaldb(callResult.getGarbageClassificationList());
 					} else {
-						responseGCModel.setRetCode(ResponseGCModel.API_CALL_FAIL_CODE);
+						responseGCModel.setRetCode(ResponseGCModel.DATA_NOT_FOUND_CODE);
 						responseGCModel.setRetMsg(ResponseGCModel.DATA_NOT_FOUND_MSG);
 					}
+				} else {
+					responseGCModel.setRetCode(ResponseGCModel.API_CALL_FAIL_CODE);
+					responseGCModel.setRetMsg(ResponseGCModel.DATA_NOT_FOUND_MSG);
 				}
 			} catch (Exception e) {
 				// 上面代码并没有显式的异常，try-catch一下主要是为了出现runnable等异常能有返回值
@@ -118,9 +116,9 @@ public class RemoteGCServive {
 								sourceCategory, new Short("2"), lr3800Service.getApiAdr());
 
 					} else {
-						if(ObjNullUtil.noEmptyOrNull(sourceGarbage.getGarbageName())) {
-							Garbage newGarbage = garbageRepository.insertNewOne(sourceGarbage.getGarbageName(), sourceGarbage.getGarbageDesc(),
-									new Short("2"), lr3800Service.getApiAdr());
+						if (ObjNullUtil.noEmptyOrNull(sourceGarbage.getGarbageName())) {
+							Garbage newGarbage = garbageRepository.insertNewOne(sourceGarbage.getGarbageName(),
+									sourceGarbage.getGarbageDesc(), new Short("2"), lr3800Service.getApiAdr());
 							savedGC = garbageClassificationRepository.insertNewOne(newGarbage, sourceCategory,
 									new Short("2"), lr3800Service.getApiAdr());
 						}
@@ -142,10 +140,10 @@ public class RemoteGCServive {
 //						savedGC = garbageClassificationRepository.insertNewOne(oldGarbageList.get(0), cOptional.get(), origin, apiAdress);
 					if (savedGC != null && savedGC.getGcId() != null) {
 						LOGGER.info("o(*￣▽￣*)o updateTask==>Update new entity of <" + garbageClassification.toString()
-						+ "> into local database success.");
+								+ "> into local database success.");
 					} else {
 						LOGGER.error("(╯▔皿▔)╯ updateTask==>Update new entity of <" + garbageClassification.toString()
-						+ "> into local database fail.");
+								+ "> into local database fail.");
 					}
 				}
 			} else {

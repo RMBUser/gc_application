@@ -62,7 +62,7 @@ public class Lr3800Service {
 			}
 			if (lajiResponseBody != null && lajiResponseBody.getCode() != null) {
 				RemoteCallResultWapper<List<TypeOfGarbage>> result = new RemoteCallResultWapper<>();
-				if (200 == lajiResponseBody.getCode()) {
+				if (new Integer(200).equals(lajiResponseBody.getCode())) {
 					List<TypeOfGarbage> togList = new ArrayList<TypeOfGarbage>();
 					result.setTarget(togList);
 					List<LajiInfo> lajiInfoList = lajiResponseBody.getNewslist();
@@ -101,6 +101,9 @@ public class Lr3800Service {
 							}
 						}
 					}
+				} else if (new Integer(250).equals(lajiResponseBody.getCode())) {
+					List<TypeOfGarbage> togList = new ArrayList<TypeOfGarbage>();
+					result.setTarget(togList);
 				} else {
 					asyncLogbackHelper.warn(LOGGER,
 							"(⊙﹏⊙) getTypeOfGarbage==>Calling api:" + getApiAdr() + "?name=" + garbageName
