@@ -16,7 +16,7 @@ public class TypeOfGarbage implements Serializable {
 
 	private Boolean isFullMatch;
 
-	private String desc;
+	private String garbageDesc;
 	
 	private String categoryExplain;
 	
@@ -64,12 +64,12 @@ public class TypeOfGarbage implements Serializable {
 		this.isFullMatch = isFullMatch;
 	}
 
-	public String getDesc() {
-		return desc;
+	public String getGarbageDesc() {
+		return garbageDesc;
 	}
 
-	public void setDesc(String desc) {
-		this.desc = desc;
+	public void setGarbageDesc(String garbageDesc) {
+		this.garbageDesc = garbageDesc;
 	}
 
 	public String getCategoryExplain() {
@@ -99,7 +99,7 @@ public class TypeOfGarbage implements Serializable {
 	@Override
 	public String toString() {
 		return "TypeOfGarbage [garbageId=" + garbageId + ", garbageName=" + garbageName + ", categoryId=" + categoryId
-				+ ", categoryType=" + categoryType + ", isFullMatch=" + isFullMatch + ", desc=" + desc + ", categoryExplain="
+				+ ", categoryType=" + categoryType + ", isFullMatch=" + isFullMatch + ", desc=" + garbageDesc + ", categoryExplain="
 				+ categoryExplain + ", contain=" + contain + ", tip=" + tip + ", toString()=" + super.toString() + "]";
 	}
 }

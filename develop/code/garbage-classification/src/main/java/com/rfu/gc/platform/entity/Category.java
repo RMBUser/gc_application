@@ -29,8 +29,6 @@ public class Category {
 	
 	private Short isEnable;
 	
-	private String desc;
-	
 	private String categoryExplain;
 	
 	private String contain;
@@ -85,14 +83,6 @@ public class Category {
 		this.isEnable = isEnable;
 	}
 
-	public String getDesc() {
-		return desc;
-	}
-
-	public void setDesc(String desc) {
-		this.desc = desc;
-	}
-
 	public String getCategoryExplain() {
 		return categoryExplain;
 	}
@@ -121,7 +111,7 @@ public class Category {
 	public String toString() {
 		return "Category [categoryId=" + categoryId + ", categoryType=" + categoryType + ", origin=" + origin
 				+ ", originAdr=" + originAdr + ", createdTime=" + createdTime + ", isEnable=" + isEnable + ", desc="
-				+ desc + ", categoryExplain=" + categoryExplain + ", contain=" + contain + ", tip=" + tip
+				+ ", categoryExplain=" + categoryExplain + ", contain=" + contain + ", tip=" + tip
 				+ ", toString()=" + super.toString() + "]";
 	}
 }
