@@ -73,9 +73,9 @@ public class RemoteGCServive {
 	private ResponseGCModel<List<TypeOfGarbage>> handleAsSoonAsPossible(
 			Set<Future<RemoteCallResultWrapper<List<TypeOfGarbage>>>> candidateFutureSet)
 			throws InterruptedException, ExecutionException {
-		RemoteCallResultWrapper<List<TypeOfGarbage>> wrapper = null;
 		ResponseGCModel<List<TypeOfGarbage>> model = null;
 		while (true) {
+			RemoteCallResultWrapper<List<TypeOfGarbage>> wrapper = null;
 			if (ObjNullUtil.emptyOrNull(candidateFutureSet)) {
 				return model;
 			}
