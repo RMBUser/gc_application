@@ -2,7 +2,10 @@ package com.rfu.gc.platform.service;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import javax.transaction.Transactional;
@@ -21,7 +24,7 @@ import com.rfu.gc.platform.dao.GarbageRepository;
 import com.rfu.gc.platform.entity.Category;
 import com.rfu.gc.platform.entity.Garbage;
 import com.rfu.gc.platform.entity.GarbageClassification;
-import com.rfu.gc.platform.entity.RemoteCallResultWapper;
+import com.rfu.gc.platform.entity.RemoteCallResultWrapper;
 import com.rfu.gc.platform.entity.ResponseGCModel;
 import com.rfu.gc.platform.entity.TypeOfGarbage;
 import com.rfu.gc.platform.pub.util.ObjNullUtil;
@@ -44,29 +47,22 @@ public class RemoteGCServive {
 	@Async("crisExecutor")
 	public Future<ResponseGCModel<List<TypeOfGarbage>>> ask4ResultFromLr3800(String garbageName) {
 		synchronized (garbageName) {
-			ResponseGCModel<List<TypeOfGarbage>> responseGCModel = new ResponseGCModel<>();
-			responseGCModel.setRetCode(ResponseGCModel.UNKNOW_ERROR_CODE);
-			responseGCModel.setRetMsg(ResponseGCModel.UNKNOW_ERROR_MSG);
-			responseGCModel.setData(Arrays.asList(new TypeOfGarbage[0]));
+			ResponseGCModel<List<TypeOfGarbage>> responseGCModel = null;
 			try {
-				RemoteCallResultWapper<List<TypeOfGarbage>> callResult = lr3800Service.getTypeOfGarbage(garbageName);
-				if (callResult != null && callResult.getTarget() != null) {
-					responseGCModel.setData(callResult.getTarget());
-					if (!callResult.getTarget().isEmpty()) {
-						responseGCModel.setRetCode(ResponseGCModel.SUCCESS);
-						responseGCModel.setRetMsg(ResponseGCModel.SUCCESS_MSG);
-						if (ObjNullUtil.noEmptyOrNull(callResult.getGarbageClassificationList()))
-							asyncUpdateLocaldb(callResult.getGarbageClassificationList());
-					} else {
-						responseGCModel.setRetCode(ResponseGCModel.DATA_NOT_FOUND_CODE);
-						responseGCModel.setRetMsg(ResponseGCModel.DATA_NOT_FOUND_MSG);
-					}
-				} else {
-					responseGCModel.setRetCode(ResponseGCModel.API_CALL_FAIL_CODE);
-					responseGCModel.setRetMsg(ResponseGCModel.DATA_NOT_FOUND_MSG);
-				}
+				Future<RemoteCallResultWrapper<List<TypeOfGarbage>>> callChoviwuFuture = lr3800Service
+						.getTypeOfGarbage(garbageName);
+				Future<RemoteCallResultWrapper<List<TypeOfGarbage>>> callLr3800Future = lr3800Service
+						.getTypeOfGarbage(garbageName);
+				Set<Future<RemoteCallResultWrapper<List<TypeOfGarbage>>>> callApisResultSet = new HashSet<>();
+				callApisResultSet.add(callChoviwuFuture);
+				callApisResultSet.add(callLr3800Future);
+				responseGCModel = handleAsSoonAsPossible(callApisResultSet);
 			} catch (Exception e) {
 				// 上面代码并没有显式的异常，try-catch一下主要是为了出现runnable等异常能有返回值
+				responseGCModel = new ResponseGCModel<>();
+				responseGCModel.setRetCode(ResponseGCModel.UNKNOW_ERROR_CODE);
+				responseGCModel.setRetMsg(ResponseGCModel.UNKNOW_ERROR_MSG);
+				responseGCModel.setData(Arrays.asList(new TypeOfGarbage[0]));
 				e.printStackTrace();
 			}
 			garbageName.notify();
@@ -74,8 +70,76 @@ public class RemoteGCServive {
 		}
 	}
 
+	private ResponseGCModel<List<TypeOfGarbage>> handleAsSoonAsPossible(
+			Set<Future<RemoteCallResultWrapper<List<TypeOfGarbage>>>> candidateFutureSet)
+			throws InterruptedException, ExecutionException {
+		RemoteCallResultWrapper<List<TypeOfGarbage>> wrapper = null;
+		ResponseGCModel<List<TypeOfGarbage>> model = null;
+		while (true) {
+			if (ObjNullUtil.emptyOrNull(candidateFutureSet)) {
+				return model;
+			}
+			for (Future<RemoteCallResultWrapper<List<TypeOfGarbage>>> future : candidateFutureSet) {
+				if (future.isDone()) {
+					wrapper = future.get();
+					candidateFutureSet.remove(future);
+					break;
+				}
+			}
+			if (wrapper != null
+					&& ResponseGCModel.SUCCESS.equals((model = wrapResponseGCModel(wrapper)).getRetCode())) {
+				wait4candidateFuturesAndUpdateDb(candidateFutureSet, wrapper.getGarbageClassificationList());
+				return model;
+			}
+		}
+	}
+
 	@Async("crisExecutor")
-	public void asyncUpdateLocaldb(List<GarbageClassification> gcList) {
+	private void wait4candidateFuturesAndUpdateDb(
+			Set<Future<RemoteCallResultWrapper<List<TypeOfGarbage>>>> candidateFutureSet,
+			List<GarbageClassification> candidateUpdateList) throws InterruptedException, ExecutionException {
+		if (ObjNullUtil.noEmptyOrNull(candidateUpdateList))
+			updateLocaldb(candidateUpdateList);
+		while (true) {
+			if (ObjNullUtil.emptyOrNull(candidateFutureSet)) {
+				return;
+			}
+			for (Future<RemoteCallResultWrapper<List<TypeOfGarbage>>> future : candidateFutureSet) {
+				if (future.isDone()) {
+					candidateFutureSet.remove(future);
+					RemoteCallResultWrapper<List<TypeOfGarbage>> wrapper = future.get();
+					if (ObjNullUtil.noEmptyOrNull(wrapper.getGarbageClassificationList()))
+						updateLocaldb(wrapper.getGarbageClassificationList());
+					break;
+				}
+			}
+		}
+
+	}
+
+	private ResponseGCModel<List<TypeOfGarbage>> wrapResponseGCModel(
+			RemoteCallResultWrapper<List<TypeOfGarbage>> callResult) {
+		ResponseGCModel<List<TypeOfGarbage>> responseGCModel = new ResponseGCModel<>();
+		responseGCModel.setRetCode(ResponseGCModel.UNKNOW_ERROR_CODE);
+		responseGCModel.setRetMsg(ResponseGCModel.UNKNOW_ERROR_MSG);
+		responseGCModel.setData(Arrays.asList(new TypeOfGarbage[0]));
+		if (callResult != null && callResult.getTarget() != null) {
+			responseGCModel.setData(callResult.getTarget());
+			if (!callResult.getTarget().isEmpty()) {
+				responseGCModel.setRetCode(ResponseGCModel.SUCCESS);
+				responseGCModel.setRetMsg(ResponseGCModel.SUCCESS_MSG);
+			} else {
+				responseGCModel.setRetCode(ResponseGCModel.DATA_NOT_FOUND_CODE);
+				responseGCModel.setRetMsg(ResponseGCModel.DATA_NOT_FOUND_MSG);
+			}
+		} else {
+			responseGCModel.setRetCode(ResponseGCModel.API_CALL_FAIL_CODE);
+			responseGCModel.setRetMsg(ResponseGCModel.DATA_NOT_FOUND_MSG);
+		}
+		return responseGCModel;
+	}
+
+	public void updateLocaldb(List<GarbageClassification> gcList) {
 		if (ObjNullUtil.noEmptyOrNull(gcList)) {
 			gcList.forEach(this::updateTask);
 		}

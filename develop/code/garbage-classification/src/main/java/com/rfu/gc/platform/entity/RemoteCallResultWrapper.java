@@ -2,7 +2,7 @@ package com.rfu.gc.platform.entity;
 
 import java.util.List;
 
-public class RemoteCallResultWapper <T> {
+public class RemoteCallResultWrapper <T> {
 	
 	private T target;
 	

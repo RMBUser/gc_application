@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.Future;
 
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
@@ -14,13 +15,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.AsyncResult;
 
 import com.google.gson.Gson;
 import com.rfu.gc.platform.dao.CategoryRepository;
 import com.rfu.gc.platform.entity.Category;
 import com.rfu.gc.platform.entity.Garbage;
 import com.rfu.gc.platform.entity.GarbageClassification;
-import com.rfu.gc.platform.entity.RemoteCallResultWapper;
+import com.rfu.gc.platform.entity.RemoteCallResultWrapper;
 import com.rfu.gc.platform.entity.TypeOfGarbage;
 import com.rfu.gc.platform.entity.lr3800.LajiInfo;
 import com.rfu.gc.platform.entity.lr3800.LajiResponseBody;
@@ -51,7 +54,8 @@ public class Lr3800Service {
 		JSON_RESOLVER = new Gson();
 	}
 
-	public RemoteCallResultWapper<List<TypeOfGarbage>> getTypeOfGarbage(String garbageName) {
+	@Async("crisExecutor")
+	public Future<RemoteCallResultWrapper<List<TypeOfGarbage>>> getTypeOfGarbage(String garbageName) {
 		if (ObjNullUtil.noEmptyOrNull(garbageName)) {
 			LajiResponseBody lajiResponseBody = null;
 			try {
@@ -61,7 +65,7 @@ public class Lr3800Service {
 				return null;
 			}
 			if (lajiResponseBody != null && lajiResponseBody.getCode() != null) {
-				RemoteCallResultWapper<List<TypeOfGarbage>> result = new RemoteCallResultWapper<>();
+				RemoteCallResultWrapper<List<TypeOfGarbage>> result = new RemoteCallResultWrapper<>();
 				if (new Integer(200).equals(lajiResponseBody.getCode())) {
 					List<TypeOfGarbage> togList = new ArrayList<TypeOfGarbage>();
 					result.setTarget(togList);
@@ -113,7 +117,7 @@ public class Lr3800Service {
 //							+ " fail==>Return code:" + lajiResponseBody.getCode() + ";Return message:"
 //							+ lajiResponseBody.getMsg());
 				}
-				return result;
+				return new AsyncResult<RemoteCallResultWrapper<List<TypeOfGarbage>>>(result);
 			}
 		}
 		return null;
