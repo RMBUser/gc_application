@@ -1,5 +1,6 @@
 package com.rfu.gc.platform.entity;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import javax.persistence.Entity;
@@ -14,7 +15,9 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 @Entity
 @Table(name = "t_gc_bu_garbage_classification")
-public class GarbageClassification {
+public class GarbageClassification implements Serializable{
+	private static final long serialVersionUID = -8462074316810831501L;
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer gcId;

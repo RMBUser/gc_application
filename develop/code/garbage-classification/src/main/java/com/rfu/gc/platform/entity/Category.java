@@ -1,5 +1,6 @@
 package com.rfu.gc.platform.entity;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import javax.persistence.Entity;
@@ -12,27 +13,28 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 @Entity
 @Table(name = "t_gc_db_category")
-public class Category {
-	
+public class Category implements Serializable {
+	private static final long serialVersionUID = 8373389484201163571L;
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer categoryId;
-	
+
 	private String categoryType;
-	
+
 	private Short origin;
-	
+
 	private String originAdr;
-	
+
 	@DateTimeFormat(pattern = "yyyy-MM-dd")
 	private Date createdTime;
-	
+
 	private Short isEnable;
-	
+
 	private String categoryExplain;
-	
+
 	private String contain;
-	
+
 	private String tip;
 
 	public Integer getCategoryId() {
@@ -111,7 +113,7 @@ public class Category {
 	public String toString() {
 		return "Category [categoryId=" + categoryId + ", categoryType=" + categoryType + ", origin=" + origin
 				+ ", originAdr=" + originAdr + ", createdTime=" + createdTime + ", isEnable=" + isEnable + ", desc="
-				+ ", categoryExplain=" + categoryExplain + ", contain=" + contain + ", tip=" + tip
-				+ ", toString()=" + super.toString() + "]";
+				+ ", categoryExplain=" + categoryExplain + ", contain=" + contain + ", tip=" + tip + ", toString()="
+				+ super.toString() + "]";
 	}
 }

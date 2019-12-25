@@ -143,7 +143,7 @@ public class HttpApiReq implements ApiReq {
 		String args = null;
 		if (ObjNullUtil.noEmptyOrNull(argsMap)) {
 			if (GET.equals(method))
-				urlStr = ApiReq.concatGetUrl(urlStr, argsMap);
+				urlStr = ApiReq.concatGetUrl(urlStr, argsMap, charset);
 			else if (POST.equals(method))
 				args = map2Json(argsMap);
 		}

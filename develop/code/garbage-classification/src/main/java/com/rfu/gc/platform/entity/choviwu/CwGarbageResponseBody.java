@@ -3,14 +3,14 @@ package com.rfu.gc.platform.entity.choviwu;
 import java.util.List;
 
 public class CwGarbageResponseBody {
-	private List<CwGarbageInfo> data1;
+	private List<CwGarbageInfo> data;
 	private String msg;
 	private Integer code;
-	public List<CwGarbageInfo> getData1() {
-		return data1;
+	public List<CwGarbageInfo> getData() {
+		return data;
 	}
-	public void setData1(List<CwGarbageInfo> data1) {
-		this.data1 = data1;
+	public void setData(List<CwGarbageInfo> data) {
+		this.data = data;
 	}
 	public String getMsg() {
 		return msg;
@@ -23,5 +23,10 @@ public class CwGarbageResponseBody {
 	}
 	public void setCode(Integer code) {
 		this.code = code;
+	}
+	@Override
+	public String toString() {
+		return "CwGarbageResponseBody [data=" + data + ", msg=" + msg + ", code=" + code + ", toString()="
+				+ super.toString() + "]";
 	}
 }

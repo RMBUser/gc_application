@@ -6,11 +6,11 @@ public class ResponseGCModel<T> implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	public static final Integer SUCCESS = 200, DATA_NOT_FOUND_CODE = 300, API_CALL_FAIL_CODE = 600,
+	public static final Integer SUCCESS = 200, DATA_NOT_FOUND_CODE = 300, API_CALL_FAIL_CODE = 600, RESPONSE_TIME_OUT = 666,
 			UNKNOW_ERROR_CODE = 900;
 
 	public static final String SUCCESS_MSG = "success", DATA_NOT_FOUND_MSG = "data is not found form system",
-			API_CALL_FAIL_MSG = "call api fail", UNKNOW_ERROR_MSG = "unknow error";
+			API_CALL_FAIL_MSG = "call api fail",RESPONSE_TIME_OUT_MSG = "no response time out", UNKNOW_ERROR_MSG = "unknow error";
 
 	private Integer retCode;
 

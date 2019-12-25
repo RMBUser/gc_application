@@ -1,6 +1,8 @@
 package com.rfu.gc.platform.service.util;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.Map;
 
 import com.rfu.gc.platform.pub.util.ObjNullUtil;
@@ -92,12 +94,21 @@ public interface ApiReq {
 	 * @param urlStr
 	 * @param argsMap
 	 * @return
+	 * @throws UnsupportedEncodingException 
 	 */
-	public static String concatGetUrl(String urlStr, Map<String, ?> argsMap) {
+	public static String concatGetUrl(String urlStr, Map<String, ?> argsMap, String charSet)
+			throws UnsupportedEncodingException {
 		if (ObjNullUtil.emptyOrNull(urlStr) || ObjNullUtil.emptyOrNull(argsMap))
 			throw new IllegalArgumentException("url or args can not be empty");
 		StringBuilder sb = new StringBuilder(urlStr + "?");
-		argsMap.forEach((k, v) -> sb.append(k).append("=").append(v).append("&"));
+		for (String k : argsMap.keySet()) {
+			if (argsMap.get(k) instanceof String) {
+				sb.append(k).append("=").append(URLEncoder.encode(argsMap.get(k).toString(), charSet)).append("&");
+			} else {
+				sb.append(k).append("=").append(argsMap.get(k)).append("&");
+			}
+		}
+
 		return sb.deleteCharAt(sb.length() - 1).toString();
 	}
 }

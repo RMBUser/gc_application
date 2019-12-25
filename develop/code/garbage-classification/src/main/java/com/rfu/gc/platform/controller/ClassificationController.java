@@ -4,6 +4,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,31 +31,29 @@ public class ClassificationController {
 	@GetMapping(value = "/byStr")
 	public ResponseGCModel<List<TypeOfGarbage>> classifyByStr(@RequestParam(required = true) String garbageName) {
 		Future<ResponseGCModel<List<TypeOfGarbage>>> future = remoteGCServive.ask4ResultFromLr3800(garbageName);
+		ResponseGCModel<List<TypeOfGarbage>> responseModel = null;
 		List<TypeOfGarbage> togList = localGCService.queryGCByStr(garbageName);
 		if (ObjNullUtil.noEmptyOrNull(togList)) {
-			ResponseGCModel<List<TypeOfGarbage>> localResponseGCModel = new ResponseGCModel<>();
-			localResponseGCModel.setRetCode(ResponseGCModel.SUCCESS);
-			localResponseGCModel.setRetMsg(ResponseGCModel.SUCCESS_MSG);
-			localResponseGCModel.setData(togList);
-			return localResponseGCModel;
+			responseModel = new ResponseGCModel<>();
+			responseModel.setRetCode(ResponseGCModel.SUCCESS);
+			responseModel.setRetMsg(ResponseGCModel.SUCCESS_MSG);
+			responseModel.setData(togList);
+			return responseModel;
 		}
-		//避免请求接口时间过长（网络问题、处理时间长等问题），只为了减少循环带来的开销，分开循环和判断，让future还未完之前先阻塞一下，以减少循环数
-		while (!future.isDone()) {
-			synchronized (garbageName) {
-				garbageName.notify();
-			}
+		try {
+			if ((responseModel = future.get(5, TimeUnit.SECONDS))!=null) return responseModel;
+		} catch (InterruptedException | ExecutionException e) {
+			responseModel = new ResponseGCModel<>();
+			responseModel.setRetCode(ResponseGCModel.UNKNOW_ERROR_CODE);
+			responseModel.setRetMsg(ResponseGCModel.UNKNOW_ERROR_MSG);
+			e.printStackTrace();
+		} catch (TimeoutException e) {
+			responseModel = new ResponseGCModel<>();
+			responseModel.setRetCode(ResponseGCModel.RESPONSE_TIME_OUT);
+			responseModel.setRetMsg(ResponseGCModel.RESPONSE_TIME_OUT_MSG);
+			e.printStackTrace();
 		}
-		if (future.isDone()) {
-			try {
-				return future.get();
-			} catch (InterruptedException | ExecutionException e) {
-				e.printStackTrace();
-			}
-		}
-		ResponseGCModel<List<TypeOfGarbage>> emptyResponseGCModel = new ResponseGCModel<>();
-		emptyResponseGCModel.setRetCode(ResponseGCModel.UNKNOW_ERROR_CODE);
-		emptyResponseGCModel.setRetMsg(ResponseGCModel.UNKNOW_ERROR_MSG);
-		emptyResponseGCModel.setData(Arrays.asList(new TypeOfGarbage[0]));
-		return emptyResponseGCModel;
+		responseModel.setData(Arrays.asList(new TypeOfGarbage[0]));
+		return responseModel;
 	}
 }

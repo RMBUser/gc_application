@@ -17,12 +17,14 @@ public class TypeOfGarbage implements Serializable {
 	private Boolean isFullMatch;
 
 	private String garbageDesc;
-	
+
 	private String categoryExplain;
-	
+
 	private String contain;
-	
+
 	private String tip;
+
+	private String originAdr;
 
 	public Integer getGarbageId() {
 		return garbageId;
@@ -96,10 +98,19 @@ public class TypeOfGarbage implements Serializable {
 		this.tip = tip;
 	}
 
+	public String getOriginAdr() {
+		return originAdr;
+	}
+
+	public void setOriginAdr(String originAdr) {
+		this.originAdr = originAdr;
+	}
+
 	@Override
 	public String toString() {
 		return "TypeOfGarbage [garbageId=" + garbageId + ", garbageName=" + garbageName + ", categoryId=" + categoryId
-				+ ", categoryType=" + categoryType + ", isFullMatch=" + isFullMatch + ", desc=" + garbageDesc + ", categoryExplain="
-				+ categoryExplain + ", contain=" + contain + ", tip=" + tip + ", toString()=" + super.toString() + "]";
+				+ ", categoryType=" + categoryType + ", isFullMatch=" + isFullMatch + ", garbageDesc=" + garbageDesc
+				+ ", categoryExplain=" + categoryExplain + ", contain=" + contain + ", tip=" + tip + ", originAdr="
+				+ originAdr + ", toString()=" + super.toString() + "]";
 	}
 }

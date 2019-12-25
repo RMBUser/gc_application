@@ -1,5 +1,6 @@
 package com.rfu.gc.platform.entity;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import javax.persistence.Entity;
@@ -16,23 +17,25 @@ import org.springframework.format.annotation.DateTimeFormat;
  */
 
 @Entity
-@Table(name = "t_gc_db_garbage_info") //映射到个表，对应关系
-public class Garbage {
+@Table(name = "t_gc_db_garbage_info") // 映射到个表，对应关系
+public class Garbage implements Serializable {
+	private static final long serialVersionUID = -987249907646098419L;
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer garbageId;
-	
+	private Integer garbageId;
+
 	private String garbageName;
-	
+
 	private String garbageDesc;
-	
+
 	private Short origin;
-	
+
 	private String originAdr;
-	
+
 	@DateTimeFormat(pattern = "yyyy-MM-dd")
 	private Date createdTime;
-	
+
 	private Short isEnable;
 
 	public Integer getGarbageId() {
@@ -93,8 +96,8 @@ public class Garbage {
 
 	@Override
 	public String toString() {
-		return "Garbage [garbageId=" + garbageId + ", garbageName=" + garbageName + ", garbageDesc=" + garbageDesc + ", origin="
-				+ origin + ", originAdr=" + originAdr + ", createdTime=" + createdTime + ", isEnable=" + isEnable
-				+ ", toString()=" + super.toString() + "]";
+		return "Garbage [garbageId=" + garbageId + ", garbageName=" + garbageName + ", garbageDesc=" + garbageDesc
+				+ ", origin=" + origin + ", originAdr=" + originAdr + ", createdTime=" + createdTime + ", isEnable="
+				+ isEnable + ", toString()=" + super.toString() + "]";
 	}
 }
